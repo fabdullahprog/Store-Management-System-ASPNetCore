@@ -383,7 +383,6 @@ Planned upgrades:
 * REST API integration
 * PDF invoice generation
 * Advanced reporting (Excel / CSV export)
-* Payment gateway integration
 * Customer portal system
 * Real-time stock alerts using SignalR
 * Search and filtering optimization
