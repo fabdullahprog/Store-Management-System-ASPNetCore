@@ -1,0 +1,366 @@
+@{
+    ViewData["Title"] = "Role & Permission Management";
+}
+
+<div class="container mt-5 mb-5">
+    <!-- Page Header -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <div class="section-title">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+                <i class="fas fa-lock"></i> Role & Permission Management
+            </h1>
+        </div>
+        <p style="font-size: 1.1rem; color: #666;">Manage user roles and access permissions</p>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> @TempData["Message"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-6 mb-4">
+
+            <!-- Role List Card -->
+            <div class="card" style="border: none; border-top: 4px solid var(--primary-gold); margin-bottom: 2rem;">
+                <div class="card-header" style="background-color: var(--light-cream); border-color: var(--border-light);">
+                    <h5 class="mb-0" style="color: var(--primary-dark); font-weight: 700;">
+                        <i class="fas fa-list"></i> Available Roles
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Roles != null && ((List<SelectListItem>)ViewBag.Roles).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--primary-gold);">
+                                        <th style="color: var(--primary-dark); font-weight: 700;">Role Name</th>
+                                        <th style="color: var(--primary-dark); font-weight: 700; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var role in (List<SelectListItem>)ViewBag.Roles)
+                                    {
+                                        <tr>
+                                            <td style="color: var(--primary-dark); font-weight: 600;">
+                                                <i class="fas fa-user-tag" style="color: var(--primary-gold); margin-right: 0.5rem;"></i>
+                                                @role.Text
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <a asp-action="ManagePermission" asp-route-roleId="@role.Value" class="btn btn-sm btn-outline-primary" title="Manage Permissions">
+                                                    <i class="fas fa-cogs"></i>
+                                                </a>
+                                                <form method="post" asp-action="Delete" style="display:inline;" onsubmit="return confirm('Delete this role?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="RoleName" value="@role.Text" />
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete Role">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted" style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-inbox"></i> No roles available
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <!-- Create New Role Card -->
+            <div class="card" style="border: none; border-top: 4px solid var(--accent-purple);">
+                <div class="card-header" style="background-color: var(--light-cream); border-color: var(--border-light);">
+                    <h5 class="mb-0" style="color: var(--primary-dark); font-weight: 700;">
+                        <i class="fas fa-plus-circle"></i> Create New Role
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Create">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="RoleName" class="form-label" style="font-weight: 600;">Role Name:</label>
+                            <input type="text" id="RoleName" name="RoleName" class="form-control" required placeholder="Enter role name" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save"></i> Create Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-6 mb-4">
+
+            <!-- Add Role to User Card -->
+            <div class="card" style="border: none; border-top: 4px solid var(--primary-gold); margin-bottom: 2rem;">
+                <div class="card-header" style="background-color: var(--light-cream); border-color: var(--border-light);">
+                    <h5 class="mb-0" style="color: var(--primary-dark); font-weight: 700;">
+                        <i class="fas fa-user-plus"></i> Assign Role to User
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="RoleAddToUser">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="AddRoleUserName" class="form-label" style="font-weight: 600;">User Name:</label>
+                            <select id="AddRoleUserName" name="UserName" class="form-select" required>
+                                <option value="">-- Select User --</option>
+                                @if (ViewBag.Users != null)
+                                {
+                                    @foreach (var user in (List<SelectListItem>)ViewBag.Users)
+                                    {
+                                        <option value="@user.Value">@user.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="AddRoleName" class="form-label" style="font-weight: 600;">Role Name:</label>
+                            <select id="AddRoleName" name="RoleName" class="form-select" required>
+                                <option value="">-- Select Role --</option>
+                                @if (ViewBag.Roles != null)
+                                {
+                                    @foreach (var role in (List<SelectListItem>)ViewBag.Roles)
+                                    {
+                                        <option value="@role.Text">@role.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus"></i> Assign Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- List Roles for User Card -->
+            <div class="card" style="border: none; border-top: 4px solid var(--accent-purple); margin-bottom: 2rem;">
+                <div class="card-header" style="background-color: var(--light-cream); border-color: var(--border-light);">
+                    <h5 class="mb-0" style="color: var(--primary-dark); font-weight: 700;">
+                        <i class="fas fa-search"></i> View User Roles
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="GetRoles" id="getRolesForm">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="GetRolesUserName" class="form-label" style="font-weight: 600;">Select User:</label>
+                            <select id="GetRolesUserName" name="UserName" class="form-select" required>
+                                <option value="">-- Select User --</option>
+                                @if (ViewBag.Users != null)
+                                {
+                                    @foreach (var user in (List<SelectListItem>)ViewBag.Users)
+                                    {
+                                        if (ViewBag.SelectedUserName != null && user.Value == ViewBag.SelectedUserName)
+                                        {
+                                            <option value="@user.Value" selected>@user.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@user.Value">@user.Text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search"></i> View Roles
+                        </button>
+                    </form>
+
+                    @if (ViewBag.RolesForThisUser != null)
+                    {
+                        <div class="mt-3" style="padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
+                            <h6 style="color: var(--primary-dark); font-weight: 700; margin-bottom: 1rem;">
+                                <i class="fas fa-user-circle"></i> Roles for <span style="color: var(--primary-gold);">@ViewBag.SelectedUserForDisplay</span>:
+                            </h6>
+                            @if (((List<string>)ViewBag.RolesForThisUser).Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var role in (List<string>)ViewBag.RolesForThisUser)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center" style="border-left: 3px solid var(--primary-gold);">
+                                            <span><i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 0.5rem;"></i>@role</span>
+                                            <span class="badge" style="background-color: var(--primary-gold); color: var(--primary-dark);">Active</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted"><i class="fas fa-inbox"></i> No roles assigned to this user.</p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Remove Role from User Card -->
+            <div class="card" style="border: none; border-top: 4px solid #e74c3c;">
+                <div class="card-header" style="background-color: var(--light-cream); border-color: var(--border-light);">
+                    <h5 class="mb-0" style="color: var(--primary-dark); font-weight: 700;">
+                        <i class="fas fa-user-minus"></i> Remove Role from User
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="DeleteRoleForUser" id="removeRoleForm">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="RemoveUserName" class="form-label" style="font-weight: 600;">User Name:</label>
+                            <select id="RemoveUserName" name="UserName" class="form-select" required>
+                                <option value="">-- Select User --</option>
+                                @if (ViewBag.Users != null)
+                                {
+                                    @foreach (var user in (List<SelectListItem>)ViewBag.Users)
+                                    {
+                                        if (ViewBag.SelectedUserName != null && user.Value == ViewBag.SelectedUserName)
+                                        {
+                                            <option value="@user.Value" selected>@user.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@user.Value">@user.Text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="RemoveRoleName" class="form-label" style="font-weight: 600;">Role to Remove:</label>
+                            <select id="RemoveRoleName" name="RoleName" class="form-select" required>
+                                <option value="">-- Select Role --</option>
+                                @if (ViewBag.UserRoles != null && ((List<SelectListItem>)ViewBag.UserRoles).Any())
+                                {
+                                    @foreach (var role in (List<SelectListItem>)ViewBag.UserRoles)
+                                    {
+                                        <option value="@role.Value">@role.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Remove this role from user?');">
+                            <i class="fas fa-trash"></i> Remove Role
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+
+            // ===== ADD ROLE TO USER - Filter available roles =====
+            $('#AddRoleUserName').on('change', function () {
+                var userName = $(this).val();
+
+                if (!userName) {
+                    $('#AddRoleName').html('<option value="">Select Role...</option>');
+                    @if (ViewBag.Roles != null)
+                    {
+                            @foreach (var role in (List<SelectListItem>)ViewBag.Roles)
+                            {
+                                    @:$('#AddRoleName').append('<option value="@role.Text">@role.Text</option>');
+                            }
+                    }
+                    return;
+                }
+
+                $('#AddRoleName').html('<option value="">Loading available roles...</option>');
+
+                $.ajax({
+                    url: '@Url.Action("GetAvailableRolesForUser", "Role")',
+                    type: 'POST',
+                    data: { userName: userName },
+                    success: function (roles) {
+                        $('#AddRoleName').html('<option value="">Select Role...</option>');
+
+                        if (roles && roles.length > 0) {
+                            $.each(roles, function (index, role) {
+                                $('#AddRoleName').append(
+                                    $('<option></option>').val(role.value).text(role.text)
+                                );
+                            });
+                        } else {
+                            $('#AddRoleName').html('<option value="">User already has all roles</option>');
+                        }
+                    },
+                    error: function () {
+                        $('#AddRoleName').html('<option value="">Error loading roles</option>');
+                        alert('Error loading available roles. Please try again.');
+                    }
+                });
+            });
+
+            // ===== REMOVE ROLE FROM USER - Show only roles user has =====
+            $('#RemoveUserName').change(function() {
+                var userName = $(this).val();
+
+                if (userName) {
+                    $('#RemoveRoleName').html('<option value="">Loading...</option>');
+
+                    $.ajax({
+                        url: '@Url.Action("GetUserRolesAjax", "Role")',
+                        type: 'POST',
+                        data: {
+                            userName: userName,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(roles) {
+                            var options = '<option value="">Select Role...</option>';
+
+                            if (roles && roles.length > 0) {
+                                roles.forEach(function(role) {
+                                    options += '<option value="' + role + '">' + role + '</option>';
+                                });
+                            } else {
+                                options = '<option value="">No roles assigned</option>';
+                            }
+
+                            $('#RemoveRoleName').html(options);
+                        },
+                        error: function() {
+                            $('#RemoveRoleName').html('<option value="">Error loading roles</option>');
+                            alert('Error loading user roles. Please try again.');
+                        }
+                    });
+                } else {
+                    $('#RemoveRoleName').html('<option value="">Select Role...</option>');
+                }
+            });
+
+            var selectedUser = $('#GetRolesUserName').val();
+            if (selectedUser && $('#RemoveUserName').val() === selectedUser) {
+                $('#RemoveUserName').trigger('change');
+            }
+        });
+    </script>
+}

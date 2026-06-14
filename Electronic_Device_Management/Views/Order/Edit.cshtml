@@ -1,0 +1,568 @@
+@model Electronic_Device_Management.Models.ViewModels.OrderMasterViewModel
+
+@{
+    ViewBag.Title = "Edit Order";
+}
+
+<div class="container mt-4">
+
+    <h2>Edit Order #@Model.OrderId</h2>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form asp-action="Edit" method="post" id="orderForm">
+        @Html.AntiForgeryToken()
+        
+        <input type="hidden" asp-for="OrderId" />
+        <input type="hidden" asp-for="CustomerId" />
+        <input type="hidden" id="hdnOrderDetails" name="OrderDetailsListJson" />
+        <input type="hidden" id="hdnEditingIndex" value="-1" />
+
+        <!-- Customer Information Card - NOW EDITABLE -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Customer Information</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="CustomerName" class="form-label"></label>
+                            <input asp-for="CustomerName" class="form-control" required />
+                            <span asp-validation-for="CustomerName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ContactNumber" class="form-label"></label>
+                            <input asp-for="ContactNumber" class="form-control" required />
+                            <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="ContactAddress" class="form-label"></label>
+                            <textarea asp-for="ContactAddress" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="ContactAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Products Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0" id="productCardTitle">Add Products</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ddlCategory" class="form-label">Category</label>
+                            <select id="ddlCategory" class="form-select">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="ddlProduct" class="form-label">Product</label>
+                            <select id="ddlProduct" class="form-select">
+                                <option value="">Select Product</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="txtOrderQuantity" class="form-label">Quantity</label>
+                            <input type="number" id="txtOrderQuantity" class="form-control" min="1" value="1" />
+                            <small id="availableQtyText" class="text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="txtOrderUnit" class="form-label">Unit</label>
+                            <input type="text" id="txtOrderUnit" class="form-control" readonly />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="txtUnitPrice" class="form-label">Unit Price</label>
+                            <input type="text" id="txtUnitPrice" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="button" id="btnAddProduct" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Product
+                    </button>
+                    <button type="button" id="btnUpdateProduct" class="btn btn-warning" style="display:none;">
+                        <i class="bi bi-check-circle"></i> Update Product
+                    </button>
+                    <button type="button" id="btnCancelEdit" class="btn btn-secondary" style="display:none;">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Order Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Unit Price</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderDetailsBody">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <th colspan="5" class="text-end">Total Amount:</th>
+                                <th id="totalAmount">0.00</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mb-4">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-check-circle"></i> Update Order
+            </button>
+            <a asp-action="Index" class="btn btn-secondary btn-lg">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <script>
+        // Global variables
+        var orderDetailsList = [];
+        var allCategories = [];
+        var editingIndex = -1;
+
+        $(document).ready(function () {
+            // Load existing order details from model
+            @if (Model.OrderDetailsList != null && Model.OrderDetailsList.Any())
+            {
+                <text>
+                orderDetailsList = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    Model.OrderDetailsList.Select(x => new {
+                        ProductCategoryId = x.ProductCategoryId ?? 0,
+                        CategoryName = x.CategoryName ?? "Unknown",
+                        ProductId = x.ProductId ?? 0,
+                        ProductName = x.ProductName ?? "Unknown",
+                        OrderQuantity = x.OrderQuantity,
+                        OrderUnit = x.OrderUnit ?? "",
+                        UnitPrice = x.UnitPrice,
+                        Amount = x.Amount,
+                        AvailableQuantity = x.AvailableQuantity
+                    })
+                ));
+                </text>
+            }
+
+            // Load categories
+            loadCategories();
+            
+            // Render existing order details
+            renderOrderDetailsTable();
+
+            // Event handlers
+            $('#ddlCategory').change(function () {
+                var categoryId = $(this).val();
+                if (categoryId) {
+                    loadProducts(categoryId);
+                } else {
+                    $('#ddlProduct').html('<option value="">Select Product</option>');
+                    clearProductFields();
+                }
+            });
+
+            $('#ddlProduct').change(function () {
+                loadProductDetails();
+            });
+
+            $('#txtOrderQuantity').on('input', function() {
+                var selected = $('#ddlProduct option:selected');
+                var availableQty = parseInt(selected.data('qty')) || 0;
+                var requestedQty = parseInt($(this).val()) || 0;
+                
+                // When editing, add the current product quantity back to available
+                if (editingIndex >= 0) {
+                    availableQty += orderDetailsList[editingIndex].OrderQuantity;
+                }
+                
+                if (requestedQty > availableQty) {
+                    $('#availableQtyText').text('⚠️ Only ' + availableQty + ' available!').addClass('text-danger');
+                } else {
+                    $('#availableQtyText').text('Available: ' + availableQty).removeClass('text-danger');
+                }
+            });
+
+            $('#btnAddProduct').click(function () {
+                addProductToOrder();
+            });
+
+            $('#btnUpdateProduct').click(function () {
+                updateProduct();
+            });
+
+            $('#btnCancelEdit').click(function () {
+                cancelEdit();
+            });
+
+            $('#orderForm').submit(function (e) {
+                if (orderDetailsList.length === 0) {
+                    e.preventDefault();
+                    alert("Please add at least one product to the order.");
+                    return false;
+                }
+
+                // Serialize order details to JSON
+                $('#hdnOrderDetails').val(JSON.stringify(orderDetailsList));
+            });
+        });
+
+        function loadCategories() {
+            // Get categories from ViewBag
+            allCategories = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                ((SelectList)ViewBag.ProductCategories).Select(x => new { 
+                    Value = x.Value, 
+                    Text = x.Text 
+                })
+            ));
+
+            var options = '<option value="">Select Category</option>';
+            
+            allCategories.forEach(function (category) {
+                options += '<option value="' + category.Value + '">' + category.Text + '</option>';
+            });
+
+            $('#ddlCategory').html(options);
+        }
+
+        function loadProducts(categoryId) {
+            $.ajax({
+                url: '/Product/GetProductsByCategory',
+                type: 'GET',
+                data: { categoryId: categoryId },
+                success: function (products) {
+                    var options = '<option value="">Select Product</option>';
+
+                    products.forEach(function (product) {
+                        options += '<option value="' + product.productId + '" ' +
+                                   'data-unit="' + (product.unit || '') + '" ' +
+                                   'data-price="' + product.unitPrice + '" ' +
+                                   'data-qty="' + product.availableQuantity + '">' +
+                                   product.productName + '</option>';
+                    });
+
+                    $('#ddlProduct').html(options);
+                    clearProductFields();
+                },
+                error: function () {
+                    alert('Error loading products. Please try again.');
+                }
+            });
+        }
+
+        function loadProductDetails() {
+            var selected = $('#ddlProduct option:selected');
+            var unit = selected.data('unit') || '';
+            var price = selected.data('price') || 0;
+            var qty = selected.data('qty') || 0;
+
+            // When editing, add back the quantity of the item being edited
+            if (editingIndex >= 0) {
+                qty += orderDetailsList[editingIndex].OrderQuantity;
+            }
+
+            $('#txtOrderUnit').val(unit);
+            $('#txtUnitPrice').val(price.toFixed(2));
+            $('#availableQtyText').text('Available: ' + qty);
+        }
+
+        function clearProductFields() {
+            $('#txtOrderUnit').val('');
+            $('#txtUnitPrice').val('');
+            $('#txtOrderQuantity').val(1);
+            $('#availableQtyText').text('');
+        }
+
+        function addProductToOrder() {
+            var categoryId = parseInt($('#ddlCategory').val());
+            var categoryName = $('#ddlCategory option:selected').text();
+            var productId = parseInt($('#ddlProduct').val());
+            var productName = $('#ddlProduct option:selected').text();
+            var quantity = parseInt($('#txtOrderQuantity').val());
+            var unit = $('#txtOrderUnit').val();
+            var unitPrice = parseFloat($('#txtUnitPrice').val());
+            var availableQty = parseInt($('#ddlProduct option:selected').data('qty')) || 0;
+
+            // Validation
+            if (!categoryId || categoryId === 0) {
+                alert('Please select a category.');
+                return;
+            }
+
+            if (!productId || productId === 0) {
+                alert('Please select a product.');
+                return;
+            }
+
+            if (!quantity || quantity <= 0) {
+                alert('Please enter a valid quantity.');
+                return;
+            }
+
+            if (quantity > availableQty) {
+                alert('Insufficient stock! Available: ' + availableQty);
+                return;
+            }
+
+            // Check if product already exists in order
+            var existingIndex = orderDetailsList.findIndex(item => item.ProductId === productId);
+            if (existingIndex !== -1) {
+                alert('This product is already in the order. Please use the Edit button to modify it.');
+                return;
+            }
+
+            var amount = quantity * unitPrice;
+
+            // Add to order details list
+            orderDetailsList.push({
+                ProductCategoryId: categoryId,
+                CategoryName: categoryName,
+                ProductId: productId,
+                ProductName: productName,
+                OrderQuantity: quantity,
+                OrderUnit: unit,
+                UnitPrice: unitPrice,
+                Amount: amount,
+                AvailableQuantity: availableQty
+            });
+
+            // Render table and clear fields
+            renderOrderDetailsTable();
+            
+            // Reset form
+            $('#ddlCategory').val('');
+            $('#ddlProduct').html('<option value="">Select Product</option>');
+            clearProductFields();
+        }
+
+        function editProduct(index) {
+            editingIndex = index;
+            var item = orderDetailsList[index];
+
+            // Update card title
+            $('#productCardTitle').text('Edit Product');
+
+            // Show Update and Cancel buttons, hide Add button
+            $('#btnAddProduct').hide();
+            $('#btnUpdateProduct').show();
+            $('#btnCancelEdit').show();
+
+            // Set category
+            $('#ddlCategory').val(item.ProductCategoryId);
+
+            // Load products for this category
+            $.ajax({
+                url: '/Product/GetProductsByCategory',
+                type: 'GET',
+                data: { categoryId: item.ProductCategoryId },
+                success: function (products) {
+                    var options = '<option value="">Select Product</option>';
+
+                    products.forEach(function (product) {
+                        var selected = product.productId === item.ProductId ? 'selected' : '';
+                        options += '<option value="' + product.productId + '" ' +
+                                   'data-unit="' + (product.unit || '') + '" ' +
+                                   'data-price="' + product.unitPrice + '" ' +
+                                   'data-qty="' + product.availableQuantity + '" ' +
+                                   selected + '>' +
+                                   product.productName + '</option>';
+                    });
+
+                    $('#ddlProduct').html(options);
+                    
+                    // Set product details
+                    $('#txtOrderQuantity').val(item.OrderQuantity);
+                    $('#txtOrderUnit').val(item.OrderUnit);
+                    $('#txtUnitPrice').val(item.UnitPrice.toFixed(2));
+                    
+                    var availableQty = (item.AvailableQuantity || 0);
+                    $('#availableQtyText').text('Available: ' + availableQty);
+                }
+            });
+        }
+
+        function updateProduct() {
+            var categoryId = parseInt($('#ddlCategory').val());
+            var categoryName = $('#ddlCategory option:selected').text();
+            var productId = parseInt($('#ddlProduct').val());
+            var productName = $('#ddlProduct option:selected').text();
+            var quantity = parseInt($('#txtOrderQuantity').val());
+            var unit = $('#txtOrderUnit').val();
+            var unitPrice = parseFloat($('#txtUnitPrice').val());
+            var availableQty = parseInt($('#ddlProduct option:selected').data('qty')) || 0;
+
+            // Add back the quantity being edited
+            availableQty += orderDetailsList[editingIndex].OrderQuantity;
+
+            // Validation
+            if (!categoryId || categoryId === 0) {
+                alert('Please select a category.');
+                return;
+            }
+
+            if (!productId || productId === 0) {
+                alert('Please select a product.');
+                return;
+            }
+
+            if (!quantity || quantity <= 0) {
+                alert('Please enter a valid quantity.');
+                return;
+            }
+
+            if (quantity > availableQty) {
+                alert('Insufficient stock! Available: ' + availableQty);
+                return;
+            }
+
+            // Check if changing to a different product that already exists
+            if (orderDetailsList[editingIndex].ProductId !== productId) {
+                var existingIndex = orderDetailsList.findIndex((item, idx) => item.ProductId === productId && idx !== editingIndex);
+                if (existingIndex !== -1) {
+                    alert('This product is already in the order.');
+                    return;
+                }
+            }
+
+            var amount = quantity * unitPrice;
+
+            // Update the item
+            orderDetailsList[editingIndex] = {
+                ProductCategoryId: categoryId,
+                CategoryName: categoryName,
+                ProductId: productId,
+                ProductName: productName,
+                OrderQuantity: quantity,
+                OrderUnit: unit,
+                UnitPrice: unitPrice,
+                Amount: amount,
+                AvailableQuantity: availableQty - quantity
+            };
+
+            // Render table and reset form
+            renderOrderDetailsTable();
+            cancelEdit();
+        }
+
+        function cancelEdit() {
+            editingIndex = -1;
+            
+            // Update card title
+            $('#productCardTitle').text('Add Products');
+            
+            // Show Add button, hide Update and Cancel buttons
+            $('#btnAddProduct').show();
+            $('#btnUpdateProduct').hide();
+            $('#btnCancelEdit').hide();
+            
+            // Reset form
+            $('#ddlCategory').val('');
+            $('#ddlProduct').html('<option value="">Select Product</option>');
+            clearProductFields();
+        }
+
+        function renderOrderDetailsTable() {
+            var tbody = $('#orderDetailsBody');
+            tbody.empty();
+
+            var total = 0;
+
+            if (orderDetailsList.length === 0) {
+                tbody.append('<tr><td colspan="7" class="text-center text-muted">No products added yet</td></tr>');
+            } else {
+                orderDetailsList.forEach(function (item, index) {
+                    total += item.Amount;
+
+                    var row = '<tr>' +
+                        '<td>' + (item.CategoryName || 'Unknown') + '</td>' +
+                        '<td>' + (item.ProductName || 'Unknown') + '</td>' +
+                        '<td>' + item.OrderQuantity + '</td>' +
+                        '<td>' + (item.OrderUnit || '') + '</td>' +
+                        '<td>' + item.UnitPrice.toFixed(2) + '</td>' +
+                        '<td>' + item.Amount.toFixed(2) + '</td>' +
+                        '<td>' +
+                        '<button type="button" class="btn btn-warning btn-sm me-1" onclick="editProduct(' + index + ')">' +
+                        '<i class="bi bi-pencil"></i> Edit' +
+                        '</button>' +
+                        '<button type="button" class="btn btn-danger btn-sm" onclick="deleteProduct(' + index + ')">' +
+                        '<i class="bi bi-trash"></i> Remove' +
+                        '</button>' +
+                        '</td>' +
+                        '</tr>';
+
+                    tbody.append(row);
+                });
+            }
+
+            $('#totalAmount').text(total.toFixed(2));
+        }
+
+        function deleteProduct(index) {
+            if (confirm('Are you sure you want to remove this product?')) {
+                // If we're deleting the item being edited, cancel edit mode
+                if (editingIndex === index) {
+                    cancelEdit();
+                } else if (editingIndex > index) {
+                    // Adjust editing index if needed
+                    editingIndex--;
+                }
+                
+                orderDetailsList.splice(index, 1);
+                renderOrderDetailsTable();
+            }
+        }
+    </script>
+}

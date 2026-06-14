@@ -1,0 +1,48 @@
+﻿@model dynamic
+
+@if (Model != null && Model.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-end">Qty Sold</th>
+                    <th class="text-end">Total Sales</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    // Safe product name and image
+                    string name = product.ProductName ?? "Unknown Product";
+                    string imagePath = "/Images/no-image.png"; // default image
+
+                    if (!string.IsNullOrEmpty((string)product.ProductImage))
+                    {
+                        imagePath = ((string)product.ProductImage).StartsWith("http")
+                        ? product.ProductImage
+                        : Url.Content("~/Images/" + product.ProductImage);
+                    }
+
+                    // Safe total sales conversion
+                    decimal totalSales = 0;
+                    decimal.TryParse(product.TotalSales?.ToString(), out totalSales);
+
+                    <tr>
+                        <td>
+                            <img src="@imagePath" alt="@name" style="width: 30px; height: 30px; object-fit: cover;" class="me-2 rounded" />
+                            @name
+                        </td>
+                        <td class="text-end">@product.TotalQuantity</td>
+                        <td class="text-end text-success fw-bold">@totalSales.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p class="text-muted text-center">No sales data available</p>
+}

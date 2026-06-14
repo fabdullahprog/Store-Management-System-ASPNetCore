@@ -1,0 +1,131 @@
+@model Electronic_Device_Management.Models.Product
+
+@{
+    ViewBag.Title = @Model.ProductName + " - Perfume Details";
+    ViewData["Title"] = ViewBag.Title;
+}
+
+<div class="container mt-5 mb-5" style="max-width: 1000px;">
+    <!-- Back Button -->
+    <a asp-action="Index" class="btn btn-outline-primary mb-4">
+        <i class="fas fa-arrow-left"></i> Back to Collection
+    </a>
+
+    <!-- Product Details Card -->
+    <div class="card" style="border: none; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
+        <div class="card-body p-0">
+            <div class="row g-0">
+                <!-- Product Image -->
+                <div class="col-md-5" style="background-color: var(--light-cream); display: flex; align-items: center; justify-content: center; min-height: 500px;">
+                    @if (!string.IsNullOrEmpty(Model.ProductImage))
+                    {
+                        <img src="~/images/@Model.ProductImage" alt="@Model.ProductName" class="img-fluid" style="max-height: 450px; object-fit: contain; padding: 2rem;" />
+                    }
+                    else
+                    {
+                        <div class="text-center">
+                            <i class="fas fa-bottle-droplet" style="font-size: 5rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <p style="color: #999; font-weight: 500;">No Image Available</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Product Details -->
+                <div class="col-md-7">
+                    <div style="padding: 3rem;">
+                        <!-- Categories -->
+                        <div style="margin-bottom: 1rem;">
+                            <span class="badge" style="background-color: var(--accent-purple); color: white; font-size: 0.85rem; padding: 0.5rem 0.8rem;">
+                                <i class="fas fa-tag"></i> @Model.ProductCategory?.CategoryName
+                            </span>
+                        </div>
+
+                        <!-- Product Name -->
+                        <h1 style="font-size: 2.2rem; color: var(--primary-dark); font-weight: 700; margin-bottom: 0.5rem;">
+                            @Model.ProductName
+                        </h1>
+
+                        <!-- Divider -->
+                        <div class="divider" style="margin: 1.5rem 0;"></div>
+
+                        <!-- Price -->
+                        <div style="margin-bottom: 2rem;">
+                            <p style="color: #999; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.9rem; font-weight: 600;">Price</p>
+                            <h2 style="color: var(--primary-gold); font-size: 2rem; font-weight: 700; margin: 0;">
+                                ৳@Model.UnitPrice.ToString("N2")
+                            </h2>
+                        </div>
+
+                        <!-- Details List -->
+                        <div style="background-color: var(--light-cream); padding: 2rem; border-radius: 0.6rem; margin-bottom: 2rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <div>
+                                    <p style="color: #999; margin-bottom: 0.3rem; text-transform: uppercase; font-size: 0.85rem; font-weight: 600;">Unit</p>
+                                    <p style="color: var(--primary-dark); font-weight: 600; font-size: 1.1rem;">@Model.Unit</p>
+                                </div>
+                                <div>
+                                    <p style="color: #999; margin-bottom: 0.3rem; text-transform: uppercase; font-size: 0.85rem; font-weight: 600;">
+                                        <i class="fas fa-box"></i> In Stock
+                                    </p>
+                                    <p style="color: var(--primary-dark); font-weight: 600; font-size: 1.1rem;">
+                                        @Model.AvailableQuantity units
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Stock Status -->
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light);">
+                                @if (Model.AvailableQuantity > 10)
+                                {
+                                    <span class="badge" style="background-color: var(--success-color); color: white;">
+                                        <i class="fas fa-check-circle"></i> In Stock
+                                    </span>
+                                }
+                                else if (Model.AvailableQuantity > 0)
+                                {
+                                    <span class="badge" style="background-color: #ff9800; color: white;">
+                                        <i class="fas fa-exclamation-triangle"></i> Limited Stock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge" style="background-color: var(--danger-color); color: white;">
+                                        <i class="fas fa-times-circle"></i> Out of Stock
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div style="margin-bottom: 2rem;">
+                            <p style="color: #999; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.9rem; font-weight: 600;">Status</p>
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge" style="background-color: var(--success-color); color: white; padding: 0.6rem 1rem; font-size: 0.9rem;">
+                                    <i class="fas fa-check"></i> Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge" style="background-color: var(--danger-color); color: white; padding: 0.6rem 1rem; font-size: 0.9rem;">
+                                    <i class="fas fa-times"></i> Inactive
+                                </span>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 1rem;">
+                            <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-primary flex-fill">
+                                <i class="fas fa-edit"></i> Edit Product
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary flex-fill">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,128 @@
+@model IEnumerable<Electronic_Device_Management.Models.ViewModels.ProductCategoryViewModel>
+@{
+    ViewBag.Title = "Electronics Categories";
+    ViewData["Title"] = "Categories - Electronics Store";
+
+    // Get user permissions
+    var permissions = ViewBag.UserPermissions as List<Electronic_Device_Management.Models.RolePermission>;
+    var canCreate = User.IsInRole("Admin") || (permissions != null && permissions.Any(p => p.ControllerName == "ProductCategory" && p.ActionName == "Create"));
+    var canEdit = User.IsInRole("Admin") || (permissions != null && permissions.Any(p => p.ControllerName == "ProductCategory" && p.ActionName == "Edit"));
+    var canDelete = User.IsInRole("Admin") || (permissions != null && permissions.Any(p => p.ControllerName == "ProductCategory" && p.ActionName == "Delete"));
+}
+
+<div class="container mt-5 mb-5">
+    <!-- Page Header -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <div class="section-title">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+                <i class="fas fa-list"></i> Electronics Categories
+            </h1>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Create Button -->
+    @if (canCreate)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle"></i> Create New Category
+                </a>
+            </div>
+        </div>
+    }
+
+    <!-- Categories Table -->
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr style="border-bottom: 3px solid var(--primary-gold);">
+                        <th style="color: var(--primary-dark); font-weight: 700;">
+                            <i class="fas fa-tag"></i> Category Name
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700;">
+                            <i class="fas fa-info-circle"></i> Description
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700; text-align: center; width: 200px;">
+                            <i class="fas fa-cogs"></i> Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="font-weight: 600; color: var(--primary-dark);">
+                                <i class="fas fa-flask-vial" style="color: var(--primary-gold); margin-right: 0.5rem;"></i>
+                                @Html.DisplayFor(modelItem => item.CategoryName)
+                            </td>
+                            <td style="color: #666;">
+                                @if (!string.IsNullOrEmpty(item.CategoryDescription) && item.CategoryDescription.Length > 100)
+                                {
+                                    @item.CategoryDescription.Substring(0, 100)<text>...</text>
+                                }
+                                else
+                                {
+                                    @Html.DisplayFor(modelItem => item.CategoryDescription)
+                                }
+                                
+                            </td>
+                            <td style="text-align: center;">
+                                @if (canEdit)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.ProductCategoryId" class="btn btn-sm btn-outline-primary" title="Edit Category">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                }
+
+                                @if (canDelete)
+                                {
+                                    <a asp-action="Delete" asp-route-id="@item.ProductCategoryId" class="btn btn-sm btn-danger" title="Delete Category">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                }
+
+                                <a asp-action="Details" asp-route-id="@item.ProductCategoryId" class="btn btn-sm" style="background-color: var(--accent-purple); color: white; border: none;" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 4rem 2rem; background-color: var(--light-cream); border-radius: 0.8rem; border-left: 4px solid var(--primary-gold);">
+            <i class="fas fa-inbox" style="font-size: 3rem; color: var(--accent-purple); margin-bottom: 1rem; display: block;"></i>
+            <h4 style="color: var(--primary-dark);">No Categories Found</h4>
+            <p style="color: #666; margin-bottom: 1.5rem;">Start by creating your first fragrance category</p>
+            @if (canCreate)
+            {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Create Category
+                </a>
+            }
+        </div>
+    }
+</div>

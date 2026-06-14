@@ -1,0 +1,316 @@
+@model Electronic_Device_Management.Models.ViewModels.OrderMasterViewModel
+
+@{
+    ViewData["Title"] = "Place Order";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Place New Order</h2>
+    <hr />
+
+    <form asp-action="Create" method="post" id="orderForm">
+
+        <!-- Hidden JSON Field -->
+        <input type="hidden" id="hdnOrderDetails" name="OrderDetailsListJson" />
+
+        <!-- Validation -->
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Customer Information</h4>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <label asp-for="CustomerName"></label>
+                        <input asp-for="CustomerName" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ContactNumber"></label>
+                        <input asp-for="ContactNumber" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="ContactAddress"></label>
+                        <textarea asp-for="ContactAddress" class="form-control"></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+       
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Add Products</h4>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <label>Category</label>
+                        <select id="ddlCategory"
+                                class="form-select"
+                                asp-items="ViewBag.ProductCategories">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Product</label>
+                        <select id="ddlProduct" class="form-select">
+                            <option value="">-- Select Product --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label>Quantity</label>
+                        <input type="number" id="txtOrderQuantity"
+                               class="form-control" value="1" min="1" />
+                        <small id="availableQtyText" class="text-muted"></small>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label>Unit</label>
+                        <input type="text" id="txtOrderUnit"
+                               class="form-control" readonly />
+                    </div>
+
+                    <div class="col-md-2">
+                        <label>Unit Price</label>
+                        <input type="text" id="txtUnitPrice"
+                               class="form-control" readonly />
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+                    <button type="button" id="btnAddProduct"
+                            class="btn btn-primary">
+                        Add Product
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Order Details</h4>
+            </div>
+
+            <div class="card-body">
+                <table class="table table-bordered" id="tblOrderDetails">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="orderDetailsBody">
+                        <tr id="noDataRow">
+                            <td colspan="7" class="text-center text-muted">
+                                No products added yet
+                            </td>
+                        </tr>
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <th colspan="5" class="text-end">Total:</th>
+                            <th id="totalAmount">0.00</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg">
+            Place Order
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary btn-lg">
+            Back
+        </a>
+    </form>
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        var orderDetailsList = [];
+
+        $("#ddlCategory").change(function () {
+
+            var categoryId = $(this).val();
+
+            $("#ddlProduct").empty();
+            $("#ddlProduct").append(`<option value="">-- Select Product --</option>`);
+
+            if (categoryId == "") return;
+
+            $.ajax({
+                url: "/Order/GetProductsByCategory",
+                type: "GET",
+                data: { categoryId: categoryId },
+
+                success: function (products) {
+
+                    products.forEach(function (p) {
+
+                        $("#ddlProduct").append(
+                            `<option value="${p.productId}"
+                                    data-unit="${p.unit}"
+                                    data-price="${p.unitPrice}"
+                                    data-qty="${p.availableQuantity}">
+                                    ${p.productName}
+                             </option>`
+                        );
+                    });
+                }
+            });
+        });
+
+        $("#ddlProduct").change(function () {
+
+            var selected = $("#ddlProduct option:selected");
+
+            $("#txtOrderUnit").val(selected.data("unit"));
+            $("#txtUnitPrice").val(selected.data("price"));
+
+            var qty = selected.data("qty");
+            $("#availableQtyText").text("Available: " + qty);
+        });
+
+        $("#btnAddProduct").click(function () {
+
+            var categoryId = $("#ddlCategory").val();
+            var categoryName = $("#ddlCategory option:selected").text();
+
+            var productId = $("#ddlProduct").val();
+            var productName = $("#ddlProduct option:selected").text();
+
+            var qty = parseInt($("#txtOrderQuantity").val());
+            var unit = $("#txtOrderUnit").val();
+            var price = parseFloat($("#txtUnitPrice").val());
+
+            if (categoryId == "" || productId == "") {
+                alert("Select Category and Product!");
+                return;
+            }
+
+            var amount = qty * price;
+
+            orderDetailsList.push({
+                ProductCategoryId: parseInt(categoryId),
+                CategoryName: categoryName,
+                ProductId: parseInt(productId),
+                ProductName: productName,
+                OrderQuantity: qty,
+                OrderUnit: unit,
+                UnitPrice: price,
+                Amount: amount
+            });
+
+            renderTable();
+        });
+
+        function renderTable() {
+
+            $("#orderDetailsBody").empty();
+
+            if (orderDetailsList.length == 0) {
+                $("#orderDetailsBody").append(`
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            No products added yet
+                        </td>
+                    </tr>
+                `);
+                $("#totalAmount").text("0.00");
+                return;
+            }
+
+            var total = 0;
+
+            orderDetailsList.forEach((item, index) => {
+
+                total += item.Amount;
+
+                $("#orderDetailsBody").append(`
+                    <tr>
+                        <td>${item.CategoryName}</td>
+                        <td>${item.ProductName}</td>
+                        <td>${item.OrderQuantity}</td>
+                        <td>${item.OrderUnit}</td>
+                        <td>${item.UnitPrice}</td>
+                        <td>${item.Amount}</td>
+                        <td class="text-center">
+                            <button type="button"
+                                    class="btn btn-warning btn-sm me-1 px-3 rounded-pill"
+                                    onclick="editItem(${index})">
+                                Edit
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-danger btn-sm px-3 rounded-pill"
+                                    onclick="removeItem(${index})">
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            $("#totalAmount").text(" " + total.toFixed(2));
+        }
+
+        function editItem(index) {
+
+            var item = orderDetailsList[index];
+
+            $("#ddlCategory").val(item.ProductCategoryId).change();
+
+            setTimeout(() => {
+                $("#ddlProduct").val(item.ProductId).change();
+            }, 300);
+
+            $("#txtOrderQuantity").val(item.OrderQuantity);
+
+            orderDetailsList.splice(index, 1);
+
+            renderTable();
+        }
+
+        function removeItem(index) {
+            orderDetailsList.splice(index, 1);
+            renderTable();
+        }
+
+        $("#orderForm").submit(function (e) {
+
+            if (orderDetailsList.length == 0) {
+                alert("Please add at least one product!");
+                e.preventDefault();
+                return;
+            }
+
+            $("#hdnOrderDetails").val(JSON.stringify(orderDetailsList));
+        });
+
+    </script>
+}
+

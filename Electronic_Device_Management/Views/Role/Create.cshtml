@@ -1,0 +1,54 @@
+@{
+    ViewData["Title"] = "Create Role";
+}
+
+<div class="container mt-4">
+    <h2>Create New Role</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Role Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Create">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3">
+                            <label for="RoleName" class="form-label">Role Name <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   id="RoleName" 
+                                   name="RoleName" 
+                                   class="form-control" 
+                                   placeholder="Enter role name (e.g., Manager, Supervisor)" 
+                                   required />
+                            <small class="form-text text-muted">
+                                Enter a unique name for the role
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Create Role
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <h6><i class="bi bi-info-circle"></i> Information:</h6>
+                <ul class="mb-0">
+                    <li>Role names should be descriptive (e.g., "Manager", "Sales", "HR")</li>
+                    <li>After creating a role, you can assign permissions to it</li>
+                    <li>Users can be assigned to roles from the Role Manager page</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

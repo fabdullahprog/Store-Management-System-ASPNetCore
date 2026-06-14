@@ -1,0 +1,165 @@
+@model IEnumerable<Electronic_Device_Management.Models.ViewModels.OrderMasterViewModel>
+@using Electronic_Device_Management.Helpers
+
+@{
+    ViewBag.Title = "Electronics Orders";
+    ViewData["Title"] = "Orders - Electronics Shop";
+
+    // Check permissions
+    var permissions = ViewBag.UserPermissions as List<Electronic_Device_Management.Models.RolePermission>;
+    bool isAdmin = User.IsInRole("Admin");
+
+    bool canCreate = PermissionHelper.HasPermission(permissions, "Order", "Create", isAdmin);
+    bool canEdit = PermissionHelper.HasPermission(permissions, "Order", "Edit", isAdmin);
+    bool canDelete = PermissionHelper.HasPermission(permissions, "Order", "Delete", isAdmin);
+    bool canViewDetails = PermissionHelper.HasPermission(permissions, "Order", "Details", isAdmin);
+    // bool canViewCustomerSummary = PermissionHelper.HasPermission(permissions, "Order", "CustomerSummary", isAdmin);
+
+}
+
+<div class="container mt-5 mb-5">
+    <!-- Page Header -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <div class="section-title">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+                <i class="fas fa-shopping-cart"></i> Orders Management
+            </h1>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                @if (canCreate)
+                {
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Create New Order
+                    </a>
+                }
+
+@*                 @if (canViewCustomerSummary)
+                {
+                    <a asp-action="CustomerSummary" class="btn btn-primary" style="background-color: black; border-color: var(--accent-purple);">
+                        <i class="fas fa-chart-bar"></i> Customer Summary
+                    </a>
+                }
+ *@            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr style="border-bottom: 3px solid var(--primary-gold);">
+                        <th style="color: var(--primary-dark); font-weight: 700;">
+                           Order ID
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700;">
+                            Customer Name
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700;">
+                            Contact
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700;">
+                            Order Date
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700; text-align: right;">
+                             Total Amount
+                        </th>
+                        <th style="color: var(--primary-dark); font-weight: 700; text-align: center;">
+                           Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="font-weight: 600; color: var(--primary-gold);">
+                                #@item.OrderId
+                            </td>
+                            <td style="color: var(--primary-dark);">
+                                @item.CustomerName
+                            </td>
+                            <td style="color: #666;">
+                               @item.ContactNumber
+                            </td>
+                            <td style="color: #666;">
+                               @item.OrderDate.ToString("dd MMM yyyy")
+                            </td>
+                            <td style="color: var(--primary-gold); font-weight: 600; text-align: right;">
+                                @item.TotalAmount.ToString("N2")
+                            </td>
+                            <td style="text-align: center;">
+                                @if (canViewDetails)
+                                {
+                                    <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                }
+
+                                @if (canEdit)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm" style="background-color: var(--accent-purple); color: black; border: none;" title="Edit Order">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                }
+
+                                @if (canDelete)
+                                {
+                                    <a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-sm btn-danger" title="Delete Order">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                }
+
+                                @if (!canViewDetails && !canEdit && !canDelete)
+                                {
+                                    <span class="text-muted" title="No Permissions">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div style="text-align: center; padding: 4rem 2rem; background-color: var(--light-cream); border-radius: 0.8rem; border-left: 4px solid var(--primary-gold);">
+            <i class="fas fa-inbox" style="font-size: 3rem; color: var(--accent-purple); margin-bottom: 1rem; display: block;"></i>
+            <h4 style="color: var(--primary-dark);">No Orders Found</h4>
+            <p style="color: #666; margin-bottom: 1.5rem;">Create your first order to get started</p>
+            @if (canCreate)
+            {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Create Order
+                </a>
+            }
+        </div>
+    }
+</div>
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Electronics Shop - Premium Product</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    Electronics Shop
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                    @{
+                        var permissions = ViewBag.UserPermissions as List<Electronic_Device_Management.Models.RolePermission>;
+                    }
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                      
+
+
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            @if (User.IsInRole("Admin") || (permissions != null && permissions.Any(p => p.ControllerName == "ProductCategory")))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Product" asp-action="Index">
+                                      
+                                        <i class="fas fa-microchip"></i> Electronics
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Admin") || (permissions != null && permissions.Any(p => p.ControllerName == "ProductCategory")))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="ProductCategory" asp-action="Index">
+                                        <i class="fas fa-list"></i> Categories
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Admin") || (permissions != null && permissions.Any(p => p.ControllerName == "Order")))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Order" asp-action="Index">
+                                        <i class="fas fa-shopping-cart"></i> Orders
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Role" asp-action="Index">
+                                        <i class="fas fa-user-circle"></i> Role Management
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer>
+@*         <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-bottle-droplet"></i> About FragranceHub</h4>
+                    <p>Discover the finest collection of premium perfumes from around the world. Experience luxury and elegance with every spritz.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li><a asp-controller="Product" asp-action="Index">Perfumes</a></li>
+                        <li><a asp-controller="ProductCategory" asp-action="Index">Categories</a></li>
+                        <li><a asp-area="Identity" asp-page="/Account/Manage/Index">My Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Shipping & Returns</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="Pinterest"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+ *@            </div>
+            <div class="footer-bottom">
+                <p>
+                    &copy; 2026 Electronics Shop. All rights reserved. |
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

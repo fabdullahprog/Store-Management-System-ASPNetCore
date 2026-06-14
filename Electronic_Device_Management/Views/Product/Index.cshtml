@@ -1,0 +1,125 @@
+@model IEnumerable<Electronic_Device_Management.Models.ViewModels.ProductViewModel>
+
+@{
+    ViewBag.Title = "Our Electronics Device Collection";
+    ViewData["Title"] = " Electronics Shop";
+}
+
+<div class="container mt-5 mb-5">
+    <!-- Page Header -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <div class="section-title">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+                <i class="fas fa-microchip"></i> Our Electronics Collection
+            </h1>
+        </div>
+        <p style="font-size: 1.1rem; color: #666; max-width: 600px; margin: 0 auto;">
+            Discover the latest and most innovative electronic devices designed to enhance your digital lifestyle.
+        </p>
+    </div>
+
+    <!-- Success & Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Create New Product Button -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus-circle"></i> Add New Product
+            </a>
+        </div>
+    </div>
+
+    <!-- Search & Filter Card -->
+    <div class="card mb-4" style="border: none; border-top: 3px solid var(--primary-gold);">
+        <div class="card-body">
+            <form asp-action="Index" method="get">
+                <div class="row g-3">
+                    <!-- Category Filter -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-filter"></i> Category
+                        </label>
+                        <select name="categoryId" class="form-select">
+                            <option value="">-- All Categories --</option>
+                            @foreach (var category in ViewBag.Categories as Microsoft.AspNetCore.Mvc.Rendering.SelectList)
+                            {
+                                <option value="@category.Value" selected="@(category.Value == ViewBag.SelectedCategory?.ToString())">@category.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Search by Name -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-search"></i> Perfume Name
+                        </label>
+                        <input type="text" name="searchName" value="@ViewBag.SearchName" class="form-control" placeholder="Search by name..." />
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-toggle-on"></i> Status
+                        </label>
+                        <select name="isActive" class="form-select">
+                            <option value="">-- All Status --</option>
+                            <option value="true" selected="@(ViewBag.IsActive == true)">Active</option>
+                            <option value="false" selected="@(ViewBag.IsActive == false)">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <partial name="_ProductCard" model="item" />
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- No Products Message -->
+        <div style="text-align: center; padding: 4rem 2rem; background-color: var(--light-cream); border-radius: 0.8rem; border-left: 4px solid var(--primary-gold);">
+            <i class="fas fa-inbox" style="font-size: 3rem; color: var(--accent-purple); margin-bottom: 1rem; display: block;"></i>
+            <h4 style="color: var(--primary-dark); margin-bottom: 0.5rem;">No Perfumes Found</h4>
+            <p style="color: #666;">Sorry, we couldn't find any perfumes matching your search criteria. Please try a different search or browse our full collection.</p>
+            <a asp-action="Index" class="btn btn-primary mt-3">
+                <i class="fas fa-redo"></i> Browse All Perfumes
+            </a>
+        </div>
+    }
+</div>
+

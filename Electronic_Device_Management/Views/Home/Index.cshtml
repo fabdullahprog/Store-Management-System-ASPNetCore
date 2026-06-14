@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Home - Electronics Shop";
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <p class="Electronics Shop"><i class=""></i> Discover Premium Product</p>
+        <h1>Welcome to Electronics Shop</h1>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-primary btn-lg">
+            <i class="fas fa-bottle-droplet"></i> Shop Now
+        </a>
+    </div>
+</section>
+
+
+    @await Component.InvokeAsync("Analytics")
+    @await Component.InvokeAsync("RecentOrders")
+    @await Component.InvokeAsync("TopProducts")
+
+
+
+
+
+}

@@ -1,0 +1,65 @@
+@model Electronic_Device_Management.Models.ViewModels.ProductViewModel
+
+<div class="product-card">
+    <!-- Product Image Section -->
+    <div class="product-image">
+        @if (!string.IsNullOrEmpty(Model.ProductImage))
+        {
+            <img src="~/images/@Model.ProductImage" alt="@Model.ProductName">
+        }
+        else
+        {
+            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #ccc;">
+                <i class="fas fa-bottle-droplet" style="font-size: 4rem; margin-bottom: 0.5rem;"></i>
+                <p style="margin: 0; font-weight: 500;">No Image</p>
+            </div>
+        }
+        @if (Model.AvailableQuantity <= 5 && Model.AvailableQuantity > 0)
+        {
+            <span class="product-badge" style="background-color: #ff9800;">Limited Stock</span>
+        }
+        @if (Model.AvailableQuantity == 0)
+        {
+            <span class="product-badge" style="background-color: #e74c3c;">Out of Stock</span>
+        }
+    </div>
+
+    <!-- Product Info Section -->
+    <div class="product-info">
+        <div class="product-category">
+            <i class="fas fa-tag"></i> @Model.CategoryName
+        </div>
+        
+        <h3 class="product-title">@Model.ProductName</h3>
+
+        <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.9rem; color: #888;">Unit: <strong>@Model.Unit</strong></span>
+                <span style="font-size: 0.9rem; color: #888;">
+                    <i class="fas fa-box"></i> 
+                    <strong>@Model.AvailableQuantity</strong>
+                </span>
+            </div>
+            <div style="width: 100%; background-color: #e8e4df; border-radius: 0.25rem; height: 6px; overflow: hidden;">
+                <div style="width: @((Model.AvailableQuantity > 100 ? 100 : Model.AvailableQuantity))%; background: linear-gradient(90deg, var(--primary-gold), var(--accent-purple)); height: 100%;"></div>
+            </div>
+        </div>
+
+        <div class="product-price">
+            <i class="fas fa-tag" style="font-size: 0.8rem;"></i> @Model.UnitPrice.ToString("N2")
+        </div>
+
+        <div class="product-actions">
+            <a asp-action="Details" asp-route-id="@Model.ProductId" class="btn btn-primary btn-sm" title="View Details">
+                <i class="fas fa-eye"></i> View
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-secondary btn-sm" title="Edit Product" style="background-color: var(--accent-purple);">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.ProductId" class="btn btn-danger btn-sm" title="Delete Product">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+    </div>
+</div>
+

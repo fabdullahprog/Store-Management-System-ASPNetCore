@@ -1,0 +1,180 @@
+@model List<Electronic_Device_Management.Models.RolePermission>
+
+@{
+    ViewData["Title"] = "Manage Permissions";
+
+    var roleName = ViewBag.RoleName;
+    var roleId = ViewBag.RoleId;
+    var allActions = (List<string>)ViewBag.AllActions;
+
+    var groupedActions = allActions
+        .Select(a => new
+        {
+            Full = a,
+            Controller = a.Split('-')[0],
+            Action = a.Split('-')[1]
+        })
+        .GroupBy(a => a.Controller)
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    var commonActions = new[] { "Index", "Details", "Create", "Edit", "Delete" };
+
+    var excludedAdditionalActions = new[]
+    {
+        "Product-DeleteConfirmed",
+        "ProductCategory-DeleteConfirmed"
+    };
+}
+
+<div class="container mt-4">
+    <h2>
+        Manage Permissions for Role:
+        <span class="badge bg-primary">@roleName</span>
+    </h2>
+
+    <hr />
+
+    <form method="post" asp-action="SavePermission">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="roleId" value="@roleId" />
+
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Controller Permissions</h5>
+            </div>
+
+            <div class="card-body">
+                <p class="text-muted">
+                    Select which actions this role can perform on each controller:
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sl.</th>
+                                <th>Name</th>
+                                <th class="text-center">View</th>
+                                <th class="text-center">Details</th>
+                                <th class="text-center">Create</th>
+                                <th class="text-center">Edit</th>
+                                <th class="text-center">Delete</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @{
+                                int slNo = 1;
+                            }
+
+                            @foreach (var group in groupedActions)
+                            {
+                                <tr>
+                                    <td>@slNo</td>
+
+                                    <td>
+                                        <strong>@group.Key</strong>
+                                    </td>
+
+                                    @foreach (var action in commonActions)
+                                    {
+                                        var fullAction = $"{group.Key}-{action}";
+                                        var hasAction = group.Any(a => a.Action == action);
+
+                                        var isChecked = Model.Any(p =>
+                                        p.ControllerName == group.Key &&
+                                        p.ActionName == action
+                                        );
+
+                                        <td class="text-center">
+                                            @if (hasAction)
+                                            {
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       name="selectedActions"
+                                                       value="@fullAction"
+                                                       @(isChecked ? "checked" : "") />
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+
+                                slNo++;
+                            }
+
+                            @if (!groupedActions.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        <em>No controllers available for permission assignment</em>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @{
+                    var additionalActions = allActions
+                    .Select(a => new
+                    {
+                        Full = a,
+                        Controller = a.Split('-')[0],
+                        Action = a.Split('-')[1]
+                    })
+                    .Where(a => !commonActions.Contains(a.Action))
+                    .Where(a => !excludedAdditionalActions.Contains(a.Full))
+                    .ToList();
+                }
+
+                @if (additionalActions.Any())
+                {
+                    <div class="mt-4">
+                        <h6>Additional Permissions:</h6>
+
+                        <div class="row">
+                            @foreach (var action in additionalActions)
+                            {
+                                var isChecked = Model.Any(p =>
+                                p.ControllerName == action.Controller &&
+                                p.ActionName == action.Action
+                                );
+
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               name="selectedActions"
+                                               value="@action.Full"
+                                               id="@action.Full"
+                                               @(isChecked ? "checked" : "") />
+
+                                        <label class="form-check-label" for="@action.Full">
+                                            @action.Controller - @action.Action
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success btn-lg">
+                Save Permissions
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary btn-lg">
+                Back to Role Manager
+            </a>
+        </div>
+    </form>
+</div>
+

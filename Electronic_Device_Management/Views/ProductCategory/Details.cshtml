@@ -1,0 +1,30 @@
+@model Electronic_Device_Management.Models.ProductCategory
+
+@{
+    ViewBag.Title = "Category Details";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-info-circle"></i> Category Details</h2>
+    <hr />
+
+    <div class="form-container">
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CategoryName)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.CategoryName)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CategoryDescription)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.CategoryDescription)</dd>
+        </dl>
+
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.ProductCategoryId" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+

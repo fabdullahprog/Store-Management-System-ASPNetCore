@@ -1,0 +1,69 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{621808C0-BD86-45BE-A076-5B1908EE2BF7}|Electronic_Device_Management.csproj|f:\\all\\10.coremvccf\\mmt08_foysal\\migrations\\20260612142517_app.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{621808C0-BD86-45BE-A076-5B1908EE2BF7}|Electronic_Device_Management.csproj|solutionrelative:migrations\\20260612142517_app.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{621808C0-BD86-45BE-A076-5B1908EE2BF7}|Electronic_Device_Management.csproj|f:\\all\\10.coremvccf\\mmt08_foysal\\data\\dbinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{621808C0-BD86-45BE-A076-5B1908EE2BF7}|Electronic_Device_Management.csproj|solutionrelative:data\\dbinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{621808C0-BD86-45BE-A076-5B1908EE2BF7}|Electronic_Device_Management.csproj|f:\\all\\10.coremvccf\\mmt08_foysal\\helpers\\permissionhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{621808C0-BD86-45BE-A076-5B1908EE2BF7}|Electronic_Device_Management.csproj|solutionrelative:helpers\\permissionhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20260612142517_app.cs",
+              "DocumentMoniker": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\Migrations\\20260612142517_app.cs",
+              "RelativeDocumentMoniker": "Migrations\\20260612142517_app.cs",
+              "ToolTip": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\Migrations\\20260612142517_app.cs",
+              "RelativeToolTip": "Migrations\\20260612142517_app.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-12T14:25:17.875Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DbInitializer.cs",
+              "DocumentMoniker": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\Data\\DbInitializer.cs",
+              "RelativeDocumentMoniker": "Data\\DbInitializer.cs",
+              "ToolTip": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\Data\\DbInitializer.cs",
+              "RelativeToolTip": "Data\\DbInitializer.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABUAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-11T12:16:10.178Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PermissionHelper.cs",
+              "DocumentMoniker": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\Helpers\\PermissionHelper.cs",
+              "RelativeDocumentMoniker": "Helpers\\PermissionHelper.cs",
+              "ToolTip": "F:\\all\\10.CoreMVCCF\\MMT08_foysal\\Helpers\\PermissionHelper.cs",
+              "RelativeToolTip": "Helpers\\PermissionHelper.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-11T11:58:12.63Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
